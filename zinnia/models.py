@@ -248,13 +248,19 @@ class EntryAbstractClass(models.Model):
         return '%s: %s' % (self.title, self.get_status_display())
 
     @models.permalink
-    def get_absolute_url(self):
+    def get_absolute_url(self, language=None):
         """Return entry's URL"""
+        slug = None
+        if language:
+            slug = getattr(self, "slug_%s" % language, self.slug)
+        if not slug:
+            slug = self.slug
+
         return ('zinnia_entry_detail', (), {
             'year': self.creation_date.strftime('%Y'),
             'month': self.creation_date.strftime('%m'),
             'day': self.creation_date.strftime('%d'),
-            'slug': self.slug})
+            'slug': slug})
 
     class Meta:
         abstract = True
