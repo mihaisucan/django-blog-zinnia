@@ -77,17 +77,27 @@ class Category(models.Model):
     @property
     def tree_path(self):
         """Return category's tree path, by his ancestors"""
+        return self.get_tree_path(None)
+
+    def get_tree_path(self, language=None):
+        """Return category's tree path, based on the desired language"""
+        slug = None
+        if language:
+            slug = getattr(self, "slug_%s" % language, slug)
+        if not slug:
+            slug = self.slug
+
         if self.parent:
-            return '%s/%s' % (self.parent.tree_path, self.slug)
-        return self.slug
+            return '%s/%s' % (self.parent.get_tree_path(language), slug)
+        return slug
 
     def __unicode__(self):
         return self.title
 
     @models.permalink
-    def get_absolute_url(self):
+    def get_absolute_url(self, language=None):
         """Return category's URL"""
-        return ('zinnia_category_detail', (self.tree_path,))
+        return ('zinnia_category_detail', (self.get_tree_path(language),))
 
     class Meta:
         """Category's Meta"""
