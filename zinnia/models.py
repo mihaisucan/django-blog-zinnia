@@ -14,6 +14,8 @@ from django.contrib import comments
 from django.contrib.comments.models import CommentFlag
 from django.contrib.comments.moderation import moderator
 from django.utils.translation import ugettext_lazy as _
+from django.core.urlresolvers import reverse
+from django.conf import settings
 
 from django.contrib.markup.templatetags.markup import markdown
 from django.contrib.markup.templatetags.markup import textile
@@ -37,6 +39,9 @@ from zinnia.url_shortener import get_url_shortener
 from zinnia.signals import ping_directories_handler
 from zinnia.signals import ping_external_urls_handler
 
+from cms.utils.moderator import  get_page_queryset
+
+ZINNIA_CMS_PAGE_ID = getattr(settings, 'ZINNIA_CMS_PAGE_ID', None)
 
 class Author(User):
     """Proxy Model around User"""
@@ -257,16 +262,17 @@ class EntryAbstractClass(models.Model):
     def __unicode__(self):
         return '%s: %s' % (self.title, self.get_status_display())
 
-    @models.permalink
     def get_absolute_url(self, language=None):
         """Return entry's URL"""
         slug = None
         if language:
-            slug = getattr(self, "slug_%s" % language, self.slug)
+            slug = getattr(self, "slug_%s" % language, None)
+            if not slug and ZINNIA_CMS_PAGE_ID: # no translation for the entry, link to blog
+                return get_page_queryset().get(reverse_id=ZINNIA_CMS_PAGE_ID).get_absolute_url()
         if not slug:
             slug = self.slug
 
-        return ('zinnia_entry_detail', (), {
+        return reverse('zinnia_entry_detail', None, (), {
             'year': self.creation_date.strftime('%Y'),
             'month': self.creation_date.strftime('%m'),
             'day': self.creation_date.strftime('%d'),

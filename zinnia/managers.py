@@ -3,10 +3,14 @@ from datetime import datetime
 
 from django.db import models
 from django.contrib.sites.models import Site
+from django.utils.translation import get_language
+from django.conf import settings
+
 
 DRAFT = 0
 HIDDEN = 1
 PUBLISHED = 2
+FILTER_ON_LANGUAGE = getattr(settings, "ZINNIA_FILTER_ON_LANGUAGE")
 
 
 def tags_published():
@@ -36,10 +40,28 @@ class AuthorPublishedManager(models.Manager):
 def entries_published(queryset):
     """Return only the entries published"""
     now = datetime.now()
-    return queryset.filter(status=PUBLISHED,
-                           start_publication__lte=now,
-                           end_publication__gt=now,
-                           sites=Site.objects.get_current())
+    filters = {
+        'status': PUBLISHED,
+        'start_publication__lte': now,
+        'end_publication__gt': now,
+        'sites': Site.objects.get_current()
+    }
+    if FILTER_ON_LANGUAGE:
+        language = get_language()
+        title = 'title_%s' % language
+        slug = 'slug_%s' % language
+        filters['%s__isnull' % title] = False
+        filters['%s__isnull' % slug] = False
+    result = queryset.filter(**filters)
+    if FILTER_ON_LANGUAGE:
+        title_arg = {
+            '%s__exact' % title: '',
+        }
+        slug_arg = {
+            '%s__exact' % slug: '',
+        }
+        result = result.filter(~models.Q(**title_arg), ~models.Q(**slug_arg))
+    return result
 
 
 class EntryPublishedManager(models.Manager):
