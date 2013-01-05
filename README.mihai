@@ -1,0 +1,30 @@
+This is a zinnia blog fork I use for client projects. This fork adds support for
+multilanguage sites.
+
+The changes you see here are minimal:
+- added ZINNIA_FILTER_ON_LANGUAGE option: whenever a list of blog posts is
+displayed, articles that are not available in the current language are hidden.
+This allows browsing English-only blog posts when you go to the English version
+of the site, or any other language.
+
+- changed models to support the django-cms language chooser and multilanguage
+slugs with django-modeltranslation.
+
+Client projects are private. These also include:
+
+- a modeltranslation for zinnia (translation.py and associated admin.py);
+- a search_indexes.py that is used with django-haystack (multilanguage-aware);
+- my own django-cms integration (cms_app.py and menu.py);
+- my own urls.py;
+
+The above code is not yet included here - I kept it out of the zinnia blog
+project to avoid forking. In the end I couldn't avoid forking. I will have to
+consolidate all the changes and move those files into this fork. I will do this,
+some day. If you want/need it, email me.
+
+Note: I started out with zinnia v0.9 and django 1.3. I did not yet upgrade to
+newer versions.
+
+Overall: I found adding multilanguage support to be a mess for existing apps.
+The better approach is to use something like django-hvad, but that means more
+forking / more work.
