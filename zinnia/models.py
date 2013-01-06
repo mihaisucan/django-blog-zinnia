@@ -271,7 +271,7 @@ class EntryAbstractClass(models.Model):
                 ZINNIA_CMS_PAGE_ID:
                 # no translation for the entry, link to blog
                 return get_page_queryset().get(reverse_id=ZINNIA_CMS_PAGE_ID).\
-                       get_absolute_url()
+                       get_absolute_url(language=language)
         if not slug or unicode(slug).startswith(u"-"):
             slug = self.slug
 
