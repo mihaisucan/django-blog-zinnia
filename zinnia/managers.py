@@ -54,13 +54,12 @@ def entries_published(queryset):
         filters['%s__isnull' % slug] = False
     result = queryset.filter(**filters)
     if FILTER_ON_LANGUAGE:
-        title_arg = {
-            '%s__exact' % title: '',
-        }
-        slug_arg = {
-            '%s__exact' % slug: '',
-        }
-        result = result.filter(~models.Q(**title_arg), ~models.Q(**slug_arg))
+        title_empty = { '%s__exact' % title: '', }
+        slug_empty = { '%s__exact' % slug: '', }
+        title_dash = { '%s__startswith' % title: '-', }
+        slug_dash = { '%s__startswith' % slug: '-', }
+        result = result.filter(~models.Q(**title_empty), ~models.Q(**slug_empty), \
+                               ~models.Q(**title_dash), ~models.Q(**slug_dash))
     return result
 
 
