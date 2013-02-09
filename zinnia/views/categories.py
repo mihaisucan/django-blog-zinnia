@@ -8,6 +8,7 @@ from zinnia.views.decorators import template_name_for_entry_queryset_filtered
 from menus.utils import set_language_changer
 from django.utils.translation import get_language
 from django.http import Http404
+from django.conf import settings
 
 
 def get_category_or_404(path):
@@ -16,7 +17,11 @@ def get_category_or_404(path):
     slug = path_bits[-1]
 
     # Try current language
-    slug_field = "slug_%s" % get_language()
+    if settings.MULTIPLE_LANGUAGES:
+        slug_field = 'slug_%s' % get_language()
+    else:
+        slug_field = 'slug'
+
     get_kwargs = {
         slug_field: slug,
     }

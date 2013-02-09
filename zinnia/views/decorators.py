@@ -13,6 +13,7 @@ from django.views.decorators.cache import never_cache
 from menus.utils import set_language_changer
 from django.utils.translation import get_language
 from django.http import Http404
+from django.conf import settings
 
 def update_queryset(view, queryset,
                     queryset_parameter='queryset'):
@@ -38,7 +39,10 @@ def slug_field(view):
         """Update the slug_field before passing it to the view."""
         request = args[0]
         # Try current language
-        slug_field = "slug_%s" % get_language()
+        if settings.MULTIPLE_LANGUAGES:
+            slug_field = 'slug_%s' % get_language()
+        else:
+            slug_field = 'slug'
         kwargs['slug_field'] = slug_field
 
         get_kwargs = {
