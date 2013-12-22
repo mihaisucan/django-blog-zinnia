@@ -4,7 +4,7 @@ from django.db.models import ManyToOneRel
 from django.db.models import ManyToManyRel
 from django.contrib.sites.models import Site
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.admin.widgets import RelatedFieldWidgetWrapper
+from django.contrib.admin.widgets import RelatedFieldWidgetWrapper, FilteredSelectMultiple
 
 from zinnia.models import Entry
 from zinnia.models import Category
@@ -12,6 +12,7 @@ from zinnia.admin.widgets import TreeNodeChoiceField
 from zinnia.admin.widgets import MPTTFilteredSelectMultiple
 from zinnia.admin.widgets import MPTTModelMultipleChoiceField
 
+from imagestore.models import Image
 
 class CategoryAdminForm(forms.ModelForm):
     """Form for Category's Admin"""
@@ -47,12 +48,19 @@ class EntryAdminForm(forms.ModelForm):
         widget=MPTTFilteredSelectMultiple(_('categories'), False,
                                           attrs={'rows': '10'}))
 
+    related_images = forms.ModelMultipleChoiceField(
+        label=_('Related images'), required=False,
+        queryset=Image.objects.all(),
+        widget=FilteredSelectMultiple(_('images'), False, attrs={'rows': '10'}))
+
     def __init__(self, *args, **kwargs):
         super(EntryAdminForm, self).__init__(*args, **kwargs)
         rel = ManyToManyRel(Category, 'id')
         self.fields['categories'].widget = RelatedFieldWidgetWrapper(
             self.fields['categories'].widget, rel, self.admin_site)
         self.fields['sites'].initial = [Site.objects.get_current()]
+        if self.instance.pk:
+            self.fields['related_images'].initial = self.instance.related_images.all()
 
     class Meta:
         """EntryAdminForm's Meta"""

@@ -27,7 +27,7 @@ class EntryAdmin(admin.ModelAdmin):
     fieldsets = ((_('Content'), {'fields': ('title', 'content',
                                             'image', 'status')}),
                  (_('Options'), {'fields': ('featured', 'excerpt', 'template',
-                                            'related', 'authors',
+                                            'related', 'related_images', 'authors',
                                             'creation_date',
                                             'start_publication',
                                             'end_publication'),
@@ -165,6 +165,10 @@ class EntryAdmin(admin.ModelAdmin):
 
         if not form.cleaned_data.get('authors'):
             form.cleaned_data['authors'].append(request.user)
+
+        related_images = form.cleaned_data.get('related_images')
+        if related_images:
+            entry.related_images = related_images
 
         entry.last_update = datetime.now()
         entry.save()
