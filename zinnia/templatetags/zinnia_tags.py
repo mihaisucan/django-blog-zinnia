@@ -97,12 +97,7 @@ def get_popular_entries(number=5, template='zinnia/tags/popular_entries.html'):
                         for object_id in object_ids
                         if object_id in object_dict][:number]}
 
-
-@register.inclusion_tag('zinnia/tags/dummy.html', takes_context=True)
-def get_similar_entries(context, number=5,
-                        template='zinnia/tags/similar_entries.html',
-                        flush=False):
-    """Return similar entries"""
+def _get_similar_entries(obj, flush=False):
     global VECTORS
     global CACHE_ENTRIES_RELATED
 
@@ -130,13 +125,21 @@ def get_similar_entries(context, number=5,
         related = sorted(entry_related.items(), key=lambda(k, v): (v, k))
         return [rel[0] for rel in related]
 
-    object_id = context['object'].pk
+    object_id = obj.pk
     columns, dataset = VECTORS()
     key = '%s-%s' % (object_id, VECTORS.key)
     if not key in CACHE_ENTRIES_RELATED.keys():
         CACHE_ENTRIES_RELATED[key] = compute_related(object_id, dataset)
 
-    entries = CACHE_ENTRIES_RELATED[key][:number]
+    return CACHE_ENTRIES_RELATED[key]
+
+@register.inclusion_tag('zinnia/tags/dummy.html', takes_context=True)
+def get_similar_entries(context, number=5,
+                        template='zinnia/tags/similar_entries.html',
+                        flush=False):
+    """Return similar entries"""
+
+    entries = _get_similar_entries(context['object'], flush=flush)[:number]
     return {'template': template,
             'entries': entries}
 
