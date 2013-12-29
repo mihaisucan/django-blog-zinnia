@@ -131,6 +131,7 @@ class EntryAbstractClass(models.Model):
                                         blank=True, null=True)
     related = models.ManyToManyField('self', verbose_name=_('related entries'),
                                      blank=True, null=True)
+    hide_related_images = models.BooleanField(_('hide related images'), default=False)
 
     slug = models.SlugField(help_text=_('used for publication'),
                             unique_for_date='creation_date',
