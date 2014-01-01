@@ -47,8 +47,8 @@ def slug_field(view):
 
         get_kwargs = {
             'creation_date__year': kwargs['year'],
-            'creation_date__month': kwargs['month'],
-            'creation_date__day': kwargs['day']
+            #'creation_date__month': kwargs['month'],
+            #'creation_date__day': kwargs['day']
         }
         get_kwargs[slug_field] = kwargs['slug']
 
@@ -60,6 +60,11 @@ def slug_field(view):
             del kwargs['slug_field']
             get_kwargs['slug'] = kwargs['slug']
             entry = get_object_or_404(kwargs['queryset'], **get_kwargs)
+
+        if 'month' not in kwargs:
+            kwargs['month'] = entry.creation_date.strftime('%m')
+        if 'day' not in kwargs:
+            kwargs['day'] = entry.creation_date.strftime('%d')
 
         set_language_changer(request, entry.get_absolute_url)
         return view(*args, **kwargs)
@@ -98,9 +103,9 @@ def protect_entry(view):
 
         get_kwargs = {
             slug_field: kw['slug'],
-            'creation_date__year': kw['year'],
-            'creation_date__month': kw['month'],
-            'creation_date__day': kw['day']
+            #'creation_date__year': kw['year'],
+            #'creation_date__month': kw['month'],
+            #'creation_date__day': kw['day']
         }
         entry = get_object_or_404(kw['queryset'], **get_kwargs)
 

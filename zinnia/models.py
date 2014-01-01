@@ -278,8 +278,8 @@ class EntryAbstractClass(models.Model):
 
         return reverse('zinnia_entry_detail', None, (), {
             'year': self.creation_date.strftime('%Y'),
-            'month': self.creation_date.strftime('%m'),
-            'day': self.creation_date.strftime('%d'),
+            #'month': self.creation_date.strftime('%m'),
+            #'day': self.creation_date.strftime('%d'),
             'slug': slug})
 
     class Meta:
